@@ -11,7 +11,7 @@ class Node :
         self.siblings  = []
         self.children  = []
         
-    def removeAll(self):
+    def removeAll(self):  #useless
         for s in self.siblings :
             s.removeAll()
         for s in self.children :
