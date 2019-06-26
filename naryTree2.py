@@ -12,7 +12,11 @@ class naryNode2 :
     def __init__(self, data):
         self.data = data
         self.parent = None
-        self.children = LinkedList2()
+        self.children = None  
+        
+    #def __del__(self):   		#if __del__ is defined, this node will be 'freed' twice, by removeAll() and by gc
+    #    print('del')
+    #    self.removeAll()
                 
     #virtual allocator
     def newNode(self, data):
@@ -33,12 +37,16 @@ class naryNode2 :
     def addChildFirst(self, data):
         node = self.newNode(data)
         node.parent = self
+        if self.children == None:
+            self.children = LinkedList2()   
         self.children.addFirst(node)
         return node
 
     def addChildLast(self, data) :
         node = self.newNode(data)
         node.parent = self
+        if self.children == None:
+            self.children = LinkedList2()   
         self.children.addLast(node)
         return node
         
@@ -46,29 +54,38 @@ class naryNode2 :
     def getChild(self, idx):
         return self.children.getNode(idx).data
 
-    def removeAll(self):  
-        node = self.children.firstNode
-        while not node == None:
-            node.data.removeAll()
-            node = node.next
+    def removeAll(self):  		#this removes all inter-referencing of nodes
+        node = self.children
+        if not node == None:
+            node = node.firstNode
+            while not node == None:
+                node.data.removeAll()  #node.data is a naryNode2
+                node = node.next
+        #print('remove', self.data)
         self.data = None
         self.parent = None
         self.children = None        
 
     #returns a naryNode2, not a node in linkedlist
     def findNodeInChildrenByNode(self, data):
-        node = self.children.firstNode
+        node = self.children
+        if node == None:
+            return None
+        node = node.firstNode
         while not node == None:
-            if data == node.data:
+            if data == node.data:       #node.data is a naryNode2
                 return node.data
             node = node.next
         return None
         
     #returns a naryNode2, not a node in linkedlist
     def findNodeInChildrenByData(self, data):
-        node = self.children.firstNode
+        node = self.children
+        if node == None:
+            return None
+        node = node.firstNode
         while not node == None:
-            if data == node.data.data:
+            if data == node.data.data:      #node.data is a naryNode2
                 return node.data
             node = node.next
         return None
@@ -111,8 +128,11 @@ class naryNode2 :
             print('</child>')
             node = node.next
 
-            
     def test(self):
+        self.addChildLast(1)
+        self.dump(0)        
+
+    def test1(self):
         
         for i in range(10) :
             self.addChildLast(i)
@@ -141,5 +161,10 @@ class naryNode2 :
         node.parent.delNodeInChildren(node)
         self.dump(0)        
         
-        self.dumpAsXml()
+        #self.dumpAsXml()
+
+
+
+        
+        
 
