@@ -1,7 +1,7 @@
-#1, this is designed for task system
-#2, 
-
 import sys      
+from random import randint
+
+import commands
         
 def printSpaces(i) :
     for ii in range(i) :
@@ -14,6 +14,7 @@ class naryNode3 :
         self.firstChild = None      #this node has pointers to only the first/last child node, not direct child node any more
         self.lastChild = None
         self.childCount = 0
+        self.childIndices = []
         self.next = None        #this next/prev are sibling pointers
         self.prev = None  
         
@@ -24,9 +25,18 @@ class naryNode3 :
     def newNode(self, data):
         return naryNode3(data)
                  
+    def buildChildIndices(self):
+        if self.firstChild :
+            self.childIndices.clear()
+            node = self.firstChild
+            while node :
+                self.childIndices.append(node)
+                node.buildChildIndices()
+                node = node.next
+
     def dump(self, level):
         printSpaces(level * 4)
-        print(self.data)
+        print(self.data, "childCnt=", len(self.childIndices))
         
         if self.firstChild == None :
             return
@@ -35,7 +45,7 @@ class naryNode3 :
         while node:
             node.dump(level+1)
             node = node.next
-            
+                        
     def deleteChildNode(self, node):
         if self.firstChild == None:
             return
@@ -102,6 +112,9 @@ class naryNode3 :
             
         return node
     
+    def getRandomChildNode(self):
+        return self.getChildNode(randint(0, self.childCount-1))
+
     def getNode(self, idx):
         node = self
         i = 0
@@ -113,6 +126,7 @@ class naryNode3 :
         return None
 
     def getChildNode(self, idx):
+        #commands.ODS(self.tp, self.status)
         return self.firstChild.getNode(idx)          
         
     def removeAll(self):        #this removes all inter-referencing of nodes
@@ -122,12 +136,13 @@ class naryNode3 :
             node.removeAll()  
             node = next
                 
-        print('remove', self.data)
+        #print('remove', self.data)
         self.data = None
         self.parent = None
         self.firstChild = None
         self.lastChild = None
         self.childCount = 0
+        self.childIndices.clear()
         self.next = None  
         self.prev = None        
         
@@ -175,36 +190,4 @@ class naryNode3 :
             print('</child>')
             node = node.next
 
-    def t(self):
-        for i in range(10,20):
-            self.addChildLast(i)
-            
-        self.dump(0)
-        self.deleteChildNode(self.getChildNode(9))
-        self.dump(0)
 
-        self.createPath('memberA0', 'familyA')
-        self.createPath('memberA1', 'familyA')
-        self.createPath('memberB0', 'familyB')
-        self.createPath('memberB1', 'familyB')
-        self.createPath('memberC0', 'familyC')
-        self.createPath('memberC1', 'familyC')
-        self.createPath('memberCC1', 'familyC', 'memberC1')
-        self.dump(0)
-        
-        node = self.findNodeByPathName('familyC', 'memberC1', 'memberCC1')
-        print(node, node.data)
-        
-        node.parent.deleteChildNode(node)
-
-        self.dump(0)
-        
-        print('XML begin')
-        self.dumpAsXml()
-        print('XML end')
-        
-        self.removeAll()
-        self.dump(0)
-        
-        gc.collect()
-        
